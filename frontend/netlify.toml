@@ -11,3 +11,19 @@
 
 [context.production.environment]
   # Optional: Add environment variables here
+
+
+[build]
+  command = "npm run build" # Use "yarn build" if you are using Yarn
+  publish = "build" # If you are using a build directory, adjust accordingly
+
+[build.environment]
+  NODE_VERSION = "16"  # Ensure you're using the correct Node.js version
+
+[functions]
+  directory = "netlify/functions" # Adjust if your functions directory is different
+
+[context.production.environment]
+  PORT = "3001"
+  MONGODB_URI = "mongodb://todoappUser:todoappPassword@localhost:27017/todoapp?authSource=todoapp"
+  JWT_SECRET = "random@06"
