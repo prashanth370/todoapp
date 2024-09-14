@@ -1,0 +1,13 @@
+[build]
+  command = "npm run build"  # Use "yarn build" if you're using Yarn
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "16"  # Ensure you're using the correct Node.js version
+
+[build]
+  # This sets up Netlify to use the functions in the `netlify/functions` directory
+  functions = "netlify/functions"
+
+[context.production.environment]
+  # Optional: Add environment variables here
