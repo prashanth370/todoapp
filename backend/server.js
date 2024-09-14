@@ -9,7 +9,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: 'https://todoapp-rgb1.vercel.app',  // Updated to production URL
   credentials: true
 }));
 app.use(express.json());
@@ -22,7 +22,6 @@ const mongoPassword = process.env.MONGO_PASSWORD;
 mongoose.connect(mongoURI, {
   user: mongoUser,
   pass: mongoPassword,
-  // Deprecated options removed
 })
 .then(() => console.log('Connected to MongoDB!'))
 .catch(err => console.error('Could not connect to MongoDB...', err));
@@ -156,7 +155,7 @@ app.delete('/tasks/:id', auth, async (req, res) => {
     if (task.user.toString() !== req.user.id) {
       return res.status(401).json({ msg: 'User not authorized' });
     }
-    await Task.findByIdAndDelete(req.params.id); // Updated to findByIdAndDelete
+    await Task.findByIdAndDelete(req.params.id);
     res.json({ msg: 'Task removed' });
   } catch (err) {
     console.error(err.message);
@@ -164,5 +163,8 @@ app.delete('/tasks/:id', auth, async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
+});
