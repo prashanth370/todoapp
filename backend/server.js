@@ -9,7 +9,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://todoapp-rgb1.vercel.app'],
+  origin: ['http://localhost:3000', 'https://todoapp-k89q.vercel.app/'],
   credentials: true
 }));
 app.use(express.json());
