@@ -9,19 +9,16 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'https://todoapp-rgb1.vercel.app',  // Updated to production URL
+  origin: ['http://localhost:3000', 'https://todoapp-rgb1.vercel.app'],
   credentials: true
 }));
 app.use(express.json());
 
-// MongoDB connection with authentication
+// MongoDB connection
 const mongoURI = process.env.MONGODB_URI;
-const mongoUser = process.env.MONGO_USER;
-const mongoPassword = process.env.MONGO_PASSWORD;
-
 mongoose.connect(mongoURI, {
-  user: mongoUser,
-  pass: mongoPassword,
+  useNewUrlParser: true,
+  useUnifiedTopology: true
 })
 .then(() => console.log('Connected to MongoDB!'))
 .catch(err => console.error('Could not connect to MongoDB...', err));
@@ -31,6 +28,8 @@ const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
 });
+
+userSchema.index({ username: 1 });
 
 const User = mongoose.model('User', userSchema);
 
@@ -44,11 +43,14 @@ const taskSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 });
 
+taskSchema.index({ user: 1 });
+
 const Task = mongoose.model('Task', taskSchema);
 
 // Middleware for authentication
 const auth = (req, res, next) => {
   const token = req.header('x-auth-token');
+  console.log('Token received:', token); // Debugging line
   if (!token) return res.status(401).json({ msg: 'No token, authorization denied' });
 
   try {
@@ -56,6 +58,7 @@ const auth = (req, res, next) => {
     req.user = decoded.user;
     next();
   } catch (err) {
+    console.error('Token verification failed:', err);
     res.status(401).json({ msg: 'Token is not valid' });
   }
 };
@@ -73,13 +76,13 @@ app.post('/register', async (req, res) => {
     user.password = await bcrypt.hash(password, salt);
     await user.save();
     const payload = { user: { id: user.id } };
-    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 3600 }, (err, token) => {
+    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
       if (err) throw err;
       res.json({ token });
     });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    console.error('Registration error:', err);
+    res.status(500).json({ msg: 'Server error during registration' });
   }
 });
 
@@ -95,13 +98,13 @@ app.post('/login', async (req, res) => {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
     const payload = { user: { id: user.id } };
-    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 3600 }, (err, token) => {
+    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
       if (err) throw err;
       res.json({ token });
     });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    console.error('Login error:', err);
+    res.status(500).json({ msg: 'Server error during login' });
   }
 });
 
@@ -110,8 +113,8 @@ app.get('/tasks', auth, async (req, res) => {
     const tasks = await Task.find({ user: req.user.id });
     res.json(tasks);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    console.error('Error fetching tasks:', err);
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 
@@ -128,8 +131,8 @@ app.post('/tasks', auth, async (req, res) => {
     const task = await newTask.save();
     res.json(task);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    console.error('Error creating task:', err);
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 
@@ -143,8 +146,8 @@ app.put('/tasks/:id', auth, async (req, res) => {
     task = await Task.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
     res.json(task);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    console.error('Error updating task:', err);
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 
@@ -158,8 +161,8 @@ app.delete('/tasks/:id', auth, async (req, res) => {
     await Task.findByIdAndDelete(req.params.id);
     res.json({ msg: 'Task removed' });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    console.error('Error deleting task:', err);
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 

@@ -1,19 +1,22 @@
-"use client"
+'use client'
 
 import { useState } from 'react'
-import { useAuth } from './AuthContext'
+import { useAuth } from '../auth/AuthContext'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function LoginForm() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isRegistering, setIsRegistering] = useState(false)
+  const [error, setError] = useState('')
   const { login, register } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
     try {
       if (isRegistering) {
         await register(username, password)
@@ -22,7 +25,7 @@ export default function LoginForm() {
       }
     } catch (error) {
       console.error('Authentication failed:', error)
-      alert('Authentication failed. Please try again.')
+      setError('Authentication failed. Please try again.')
     }
   }
 
@@ -32,6 +35,11 @@ export default function LoginForm() {
         <CardTitle className="text-2xl font-bold">{isRegistering ? 'Register' : 'Login'}</CardTitle>
       </CardHeader>
       <CardContent>
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             type="text"
