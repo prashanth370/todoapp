@@ -50,7 +50,6 @@ const Task = mongoose.model('Task', taskSchema);
 // Middleware for authentication
 const auth = (req, res, next) => {
   const token = req.header('x-auth-token');
-  console.log('Token received:', token); // Debugging line
   if (!token) return res.status(401).json({ msg: 'No token, authorization denied' });
 
   try {
@@ -58,7 +57,6 @@ const auth = (req, res, next) => {
     req.user = decoded.user;
     next();
   } catch (err) {
-    console.error('Token verification failed:', err);
     res.status(401).json({ msg: 'Token is not valid' });
   }
 };
@@ -81,7 +79,6 @@ app.post('/register', async (req, res) => {
       res.json({ token });
     });
   } catch (err) {
-    console.error('Registration error:', err);
     res.status(500).json({ msg: 'Server error during registration' });
   }
 });
@@ -103,7 +100,6 @@ app.post('/login', async (req, res) => {
       res.json({ token });
     });
   } catch (err) {
-    console.error('Login error:', err);
     res.status(500).json({ msg: 'Server error during login' });
   }
 });
@@ -113,7 +109,6 @@ app.get('/tasks', auth, async (req, res) => {
     const tasks = await Task.find({ user: req.user.id });
     res.json(tasks);
   } catch (err) {
-    console.error('Error fetching tasks:', err);
     res.status(500).json({ msg: 'Server Error' });
   }
 });
@@ -131,7 +126,6 @@ app.post('/tasks', auth, async (req, res) => {
     const task = await newTask.save();
     res.json(task);
   } catch (err) {
-    console.error('Error creating task:', err);
     res.status(500).json({ msg: 'Server Error' });
   }
 });
@@ -146,7 +140,6 @@ app.put('/tasks/:id', auth, async (req, res) => {
     task = await Task.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
     res.json(task);
   } catch (err) {
-    console.error('Error updating task:', err);
     res.status(500).json({ msg: 'Server Error' });
   }
 });
@@ -161,7 +154,6 @@ app.delete('/tasks/:id', auth, async (req, res) => {
     await Task.findByIdAndDelete(req.params.id);
     res.json({ msg: 'Task removed' });
   } catch (err) {
-    console.error('Error deleting task:', err);
     res.status(500).json({ msg: 'Server Error' });
   }
 });
