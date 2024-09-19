@@ -12,7 +12,9 @@ const nextConfig = {
     }
     return config;
   },
-  // Add any additional configuration here if needed
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+  },
 };
 
 module.exports = nextConfig;

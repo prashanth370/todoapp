@@ -25,5 +25,7 @@
 
 [context.production.environment]
   PORT = "3001"
-  MONGODB_URI = "mongodb://todoappUser:todoappPassword@localhost:27017/todoapp?authSource=todoapp"
-  JWT_SECRET = "random@06"
+  MONGODB_URI=mongodb://localhost:27017/todoapp?authSource=admin
+  JWT_SECRET=random@06
+  MONGO_USER=admin
+  MONGO_PASSWORD=Nayak@06

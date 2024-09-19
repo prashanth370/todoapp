@@ -1,3 +1,4 @@
+// todo.tsx
 "use client"
 
 import { useState, useEffect } from 'react'
@@ -36,7 +37,7 @@ export default function TodoList() {
 
   const fetchTasks = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/tasks', {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/tasks`, {
         headers: { 'x-auth-token': token }
       })
       setTasks(response.data)
@@ -48,7 +49,7 @@ export default function TodoList() {
   const addTask = async () => {
     if (newTask.trim() !== "") {
       try {
-        const response = await axios.post('http://localhost:3001/tasks', 
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/tasks`, 
           { 
             text: newTask,
             dueDate: newTaskDueDate,
@@ -72,7 +73,7 @@ export default function TodoList() {
     try {
       const taskToUpdate = tasks.find(task => task._id === id)
       if (taskToUpdate) {
-        const response = await axios.put(`http://localhost:3001/tasks/${id}`,
+        const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/tasks/${id}`,
           { completed: !taskToUpdate.completed },
           { headers: { 'x-auth-token': token } }
         )
@@ -85,7 +86,7 @@ export default function TodoList() {
 
   const removeTask = async (id: string) => {
     try {
-      await axios.delete(`http://localhost:3001/tasks/${id}`, 
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/tasks/${id}`, 
         { headers: { 'x-auth-token': token } }
       )
       setTasks(tasks.filter(task => task._id !== id))
